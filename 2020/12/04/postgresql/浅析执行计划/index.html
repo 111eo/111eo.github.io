@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Description-->
+    
+        <meta name="description" content="了解 EXPLAIN当遇到慢SQL时，大多开发者选择的调优方式都是执行EXPLAIN命令来查看对应的查询计划。
+实践 EXPLAIN
+造数据
+12345# 建表create table user_tests (id int, name text, status int, user_type int,">
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="John Doe">
+    
+
+    <!-- Title -->
+    
+    <title>浅析执行计划(一) | Hexo</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Noto+Serif:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+    <!-- jQuery -->
+    <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="//cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+
+    <!-- Content -->
+    <section class="article-container">
+    <!-- Back Home -->
+    <a class="nav-back" href="/">
+    <i class="fa fa-puzzle-piece"></i>
+</a>
+
+        <!-- Page Header -->
+        <header class="intro-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <div class="post-heading">
+                            <h1>
+                                浅析执行计划(一)
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Post Content -->
+        <article>
+            <div class="container">
+                <div class="row">
+                    <!-- Post Main Content -->
+                    <div class="post-content col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <h3 id="了解-EXPLAIN"><a href="#了解-EXPLAIN" class="headerlink" title="了解 EXPLAIN"></a>了解 EXPLAIN</h3><p>当遇到慢SQL时，大多开发者选择的调优方式都是执行EXPLAIN命令来查看对应的查询计划。</p>
+<h3 id="实践-EXPLAIN"><a href="#实践-EXPLAIN" class="headerlink" title="实践 EXPLAIN"></a>实践 EXPLAIN</h3><ul>
+<li><p>造数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 建表</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> user_tests (<span class="keyword">id</span> <span class="built_in">int</span>, <span class="keyword">name</span> <span class="built_in">text</span>, <span class="keyword">status</span> <span class="built_in">int</span>, user_type <span class="built_in">int</span>, active <span class="built_in">boolean</span>, user_id <span class="built_in">int</span>, app_id <span class="built_in">int</span>, created_at <span class="built_in">timestamp</span>, save_at <span class="built_in">timestamp</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment"># 按批次造1000万数据</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> user_tests <span class="keyword">select</span> generate_series(<span class="number">9000001</span>,<span class="number">10000000</span>), <span class="keyword">md5</span>(random()::<span class="built_in">text</span>), <span class="keyword">floor</span>(random()*<span class="number">9</span>)::<span class="built_in">int</span>,<span class="keyword">floor</span>(random()*<span class="number">9</span>)::<span class="built_in">int</span>, <span class="keyword">floor</span>(random()*<span class="number">2</span>)::<span class="built_in">int</span> = <span class="number">0</span>,generate_series(<span class="number">1</span>,<span class="number">1000000</span>) + <span class="number">1000</span>, generate_series(<span class="number">1000000</span>, <span class="number">1</span>, <span class="number">-1</span>), clock_timestamp(),clock_timestamp();</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>分析执行计划</p>
+</li>
+</ul>
+<ol>
+<li><p>节点类型 - 扫描节点</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在EXPLAIN命令的输出结果中可能包含多种类型的执行节点，我们可以大体分为几大类：控制节点、扫描节点、物化节点以及连接节点，这次暂时只说扫描节点</span></span><br><span class="line">Seq Scan <span class="comment"># 按顺序从头到尾依次检索扫描</span></span><br><span class="line">Index Scan <span class="comment"># 从索引中找到记录的位置(指针)，再定位到表中的Page去取。等于是两次I/O(不同于全表扫描的是只取所需数据对应的Page，I/O量较小)</span></span><br><span class="line">Bitmap Heap Scan <span class="comment"># 不常见，大致是一次性将满足条件的索引项全部取出，并在内存中进行排序, 然后根据取出的索引项访问表数据</span></span><br><span class="line">Index Only Scan <span class="comment"># 建立的index囊括了查询语句中的字段</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>简单例子</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">&gt; explain select * from user_tests</span><br><span class="line">  Seq Scan on user_tests  (cost=0.00..23334.00 rows=1000000 width=70)</span><br><span class="line"></span><br><span class="line"><span class="comment"># cost:  估计的启动开销..估计的总开销</span></span><br><span class="line"><span class="comment"># rows:  输出行数的估计值</span></span><br><span class="line"><span class="comment"># width: 预估输出的行平均宽度(以字节计算，即每一行的select内容的大小)</span></span><br><span class="line">========================</span><br><span class="line"></span><br><span class="line"><span class="comment"># [无索引] </span></span><br><span class="line">&gt; explain analyze select * from user_tests where id = 3999999 </span><br><span class="line">  Gather  (cost=1000.00..19542.43 rows=1 width=70) (actual time=591.472..596.320 rows=0 loops=1)</span><br><span class="line">    Workers Planned: 2</span><br><span class="line">    Workers Launched: 2</span><br><span class="line">    -&gt;  Parallel Seq Scan on user_tests  (cost=0.00..18542.33 rows=1 width=70) (actual time=578.540..578.540 rows=0 loops=3)</span><br><span class="line">          Filter: (id = 3999999)</span><br><span class="line">          Rows Removed by Filter: 333333</span><br><span class="line">  Planning Time: 0.554 ms</span><br><span class="line">  Execution Time: 597.000 ms</span><br><span class="line"></span><br><span class="line"><span class="comment"># Parallel Seq Scan:      并行顺序扫描(全表扫描的优化)</span></span><br><span class="line"><span class="comment"># actual time:            实际执行时间</span></span><br><span class="line"><span class="comment"># loops:                  执行该结点的总次数</span></span><br><span class="line"><span class="comment"># Rows Removed by Filter: 过滤器的条件移除的行数</span></span><br><span class="line">========================</span><br><span class="line"></span><br><span class="line"><span class="comment"># [索引] </span></span><br><span class="line">&gt; create index index_user_tests_on_id on user_tests(id);</span><br><span class="line">&gt; explain analyze select * from user_tests where id = 3999999 </span><br><span class="line">  Index Scan using index_user_tests_on_id on user_tests  (cost=0.42..8.44 rows=1 width=70) (actual time=0.037..0.038 rows=0 loops=1)</span><br><span class="line">    Index Cond: (id = 3999999)</span><br><span class="line">  Planning Time: 0.798 ms</span><br><span class="line">  Execution Time: 0.052 ms</span><br><span class="line">========================</span><br><span class="line"></span><br><span class="line"><span class="comment"># [联合索引] </span></span><br><span class="line">&gt; create index index_user_tests_on_user_id_and_status on user_tests(user_id,status);</span><br><span class="line">&gt; explain analyze select * from user_tests where user_id = 9000 and status = 5; </span><br><span class="line">  Index Scan using index_user_tests_on_user_id_and_status on user_tests  (cost=0.42..8.45 rows=1 width=70) (actual time=0.053..0.053 rows=0 loops=1)</span><br><span class="line">    Index Cond: ((user_id = 9000) AND (status = 5))</span><br><span class="line">  Planning Time: 2.212 ms</span><br><span class="line">  Execution Time: 0.074 ms</span><br><span class="line"></span><br><span class="line"><span class="comment"># 若仅对user_id、status单独建索引，规划器不会使用status索引</span></span><br><span class="line"><span class="comment"># 在遇到慢查询时，可考虑这个思路(order_by可以和where条件的字段建联合索引)</span></span><br><span class="line"><span class="comment"># limit对执行计划的影响很大</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+</li>
+</ol>
+
+
+                            <!-- Meta -->
+                            <div class="post-meta">
+                                <hr>
+                                <br>
+                                <div class="post-tags">
+                                    
+                                                
+
+<a href="/categories/postgresql/"><postgresql></a>
+
+                                                    
+                                </div>
+                                <div class="post-date">
+                                    2020-12-04
+                                </div>
+                            </div>
+                    </div>
+
+                    <!-- Comments -->
+                    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <!-- Disqus Comments -->
+
+
+                    </div>
+                </div>
+            </div>
+        </article>
+</section>
+
+<!-- Image viewer-->
+
+    <!-- Custom picture view-->
+    <link href="/css/viewer.min.css" rel="stylesheet" />
+    <script
+      src="/js/viewer.min.js"
+      type="text/javascript"
+      charset="utf-8"
+    ></script>
+    
+    <script type="text/javascript">
+      // set image viewer
+      Viewer.setDefaults({
+        zoomRatio: [0.5],
+        navbar: false,
+        toolbar: false,
+        button: false,
+        title: [2, (image, imageData) => `${image.alt}`],
+        show: function() {
+          this.viewer.zoomTo(0.5);
+        }
+      });
+      var imageList = document.getElementsByTagName("img");
+      Array.prototype.forEach.call(imageList, element => {
+        var viewer = new Viewer(element);
+      });
+    </script>
+
+    
+    <!-- Scripts -->
+    <script type="text/javascript">
+    console.log("© zchen9 🙋 2015-" + new Date().getFullYear());
+</script>
+  
+    <!-- Google Analytics -->
+    
+
+    <!-- Service Worker -->
+    <!-- if using service worker -->
+
+    
+</body>
+
+</html>

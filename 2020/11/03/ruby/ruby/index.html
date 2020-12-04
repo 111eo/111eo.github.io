@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Description-->
+    
+        <meta name="description" content="目录一. Gem构建
+
+Gem构建什么是Gem打包好的Ruby应用程序或类库，专注特定的功能
+制作一个Gem目录结构如下:
+1234.├── rcc.gemspec└── lib    └── rcc.rb
+
+按目录结构手动创建，包的代码位于lib目录中。约定一个与gem同名的Ruby文件，该文件可">
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="John Doe">
+    
+
+    <!-- Title -->
+    
+    <title>Ruby笔记 | Hexo</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Noto+Serif:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+    <!-- jQuery -->
+    <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="//cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+
+    <!-- Content -->
+    <section class="article-container">
+    <!-- Back Home -->
+    <a class="nav-back" href="/">
+    <i class="fa fa-puzzle-piece"></i>
+</a>
+
+        <!-- Page Header -->
+        <header class="intro-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <div class="post-heading">
+                            <h1>
+                                Ruby笔记
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Post Content -->
+        <article>
+            <div class="container">
+                <div class="row">
+                    <!-- Post Main Content -->
+                    <div class="post-content col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <h1 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h1><p>一. Gem构建</p>
+<hr>
+<h2 id="Gem构建"><a href="#Gem构建" class="headerlink" title="Gem构建"></a>Gem构建</h2><h3 id="什么是Gem"><a href="#什么是Gem" class="headerlink" title="什么是Gem"></a>什么是Gem</h3><p>打包好的Ruby应用程序或类库，专注特定的功能</p>
+<h3 id="制作一个Gem"><a href="#制作一个Gem" class="headerlink" title="制作一个Gem"></a>制作一个Gem</h3><p>目录结构如下:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── rcc.gemspec</span><br><span class="line">└── lib</span><br><span class="line">    └── rcc.rb</span><br></pre></td></tr></table></figure>
+
+<p>按目录结构手动创建，包的代码位于<em>lib</em>目录中。约定一个与gem同名的Ruby文件，该文件可通过*require ‘rcc’*加载，实例代码如下</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Rcc</span></span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">self</span>.<span class="title">hi</span></span></span><br><span class="line">    puts <span class="string">&quot;Hello world!&quot;</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>gemspec定义gem的信息(内容、版本等)</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Gem::Specification.new <span class="keyword">do</span> <span class="params">|s|</span></span><br><span class="line">  s.name        = <span class="string">&#x27;rcc&#x27;</span></span><br><span class="line">  s.version     = <span class="string">&#x27;0.0.0&#x27;</span></span><br><span class="line">  s.date        = <span class="string">&#x27;2010-04-28&#x27;</span></span><br><span class="line">  s.summary     = <span class="string">&quot;rcc!&quot;</span></span><br><span class="line">  s.description = <span class="string">&quot;A simple hello world gem&quot;</span></span><br><span class="line">  s.authors     = [<span class="string">&quot;ziyingxu&quot;</span>]</span><br><span class="line">  s.email       = <span class="string">&#x27;ziying.xu@rccchina.com&#x27;</span></span><br><span class="line">  s.files       = [<span class="string">&quot;lib/rcc.rb&quot;</span>]</span><br><span class="line">  s.homepage    =</span><br><span class="line">    <span class="string">&#x27;https://rubygems.org/gems/rcc&#x27;</span></span><br><span class="line">  s.license       = <span class="string">&#x27;MIT&#x27;</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>gemspec可从中创建gem,然后在本地可以安装生成gem来测试</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">gem build rcc.gemspec</span><br><span class="line"><span class="comment"># Successfully built RubyGem</span></span><br><span class="line"><span class="comment"># Name: hola</span></span><br><span class="line"><span class="comment"># Version: 0.0.0</span></span><br><span class="line"><span class="comment"># File: hola-0.0.0.gem</span></span><br><span class="line">gem install ./rcc-<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.gem</span><br></pre></td></tr></table></figure>
+
+<p>还可在irb通过require测试</p>
+<blockquote>
+<p>If you’re using an earlier Ruby than 1.9.2, you need to start the session with irb -rubygems or require the rubygems library after you launch irb.</p>
+</blockquote>
+<p>如果想与其他成员共享gem，需要在站点上拥有一个账号，只需执行以下命令:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl -u ziyingxu https://rubygems.org/api/v1/api_key.yaml &gt;</span><br><span class="line">~/.gem/credentials</span><br><span class="line"></span><br><span class="line">Enter host password <span class="keyword">for</span> user <span class="string">&#x27;ziyingxu&#x27;</span>:</span><br></pre></td></tr></table></figure>
+
+<p>设置完后，可以执行以下命令发布gem</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">gem push rcc-<span class="number">0</span>.<span class="number">0</span>.<span class="number">0</span>.gem</span><br><span class="line"></span><br><span class="line"><span class="comment"># Pushing gem to RubyGems.org...</span></span><br><span class="line"><span class="comment"># Successfully registered gem: rcc (0.0.0)</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><p><a target="_blank" rel="noopener" href="https://guides.rubygems.org/">https://guides.rubygems.org/</a></p>
+
+
+                            <!-- Meta -->
+                            <div class="post-meta">
+                                <hr>
+                                <br>
+                                <div class="post-tags">
+                                    
+                                </div>
+                                <div class="post-date">
+                                    2020-11-03
+                                </div>
+                            </div>
+                    </div>
+
+                    <!-- Comments -->
+                    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <!-- Disqus Comments -->
+
+
+                    </div>
+                </div>
+            </div>
+        </article>
+</section>
+
+<!-- Image viewer-->
+
+    <!-- Custom picture view-->
+    <link href="/css/viewer.min.css" rel="stylesheet" />
+    <script
+      src="/js/viewer.min.js"
+      type="text/javascript"
+      charset="utf-8"
+    ></script>
+    
+    <script type="text/javascript">
+      // set image viewer
+      Viewer.setDefaults({
+        zoomRatio: [0.5],
+        navbar: false,
+        toolbar: false,
+        button: false,
+        title: [2, (image, imageData) => `${image.alt}`],
+        show: function() {
+          this.viewer.zoomTo(0.5);
+        }
+      });
+      var imageList = document.getElementsByTagName("img");
+      Array.prototype.forEach.call(imageList, element => {
+        var viewer = new Viewer(element);
+      });
+    </script>
+
+    
+    <!-- Scripts -->
+    <script type="text/javascript">
+    console.log("© zchen9 🙋 2015-" + new Date().getFullYear());
+</script>
+  
+    <!-- Google Analytics -->
+    
+
+    <!-- Service Worker -->
+    <!-- if using service worker -->
+
+    
+</body>
+
+</html>
