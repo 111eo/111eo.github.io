@@ -9,10 +9,10 @@
 
     <!--Description-->
     
-        <meta name="description" content="了解 EXPLAIN当遇到慢SQL时，大多开发者选择的调优方式都是执行EXPLAIN命令来查看对应的查询计划。
+        <meta name="description" content="了解 EXPLAIN当遇到慢SQL时，大多开发者选择的调优方式都是执行EXPLAIN命令来查看对应的查询计划。 
 实践 EXPLAIN
 造数据
-12345# 建表create table user_tests (id int, name text, status int, user_type int,">
+12345# 建表create table user_tests (id int, name text, status int, user_type int">
     
 
     <!--Author-->
@@ -80,7 +80,7 @@
                 <div class="row">
                     <!-- Post Main Content -->
                     <div class="post-content col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-                        <h3 id="了解-EXPLAIN"><a href="#了解-EXPLAIN" class="headerlink" title="了解 EXPLAIN"></a>了解 EXPLAIN</h3><p>当遇到慢SQL时，大多开发者选择的调优方式都是执行EXPLAIN命令来查看对应的查询计划。</p>
+                        <h3 id="了解-EXPLAIN"><a href="#了解-EXPLAIN" class="headerlink" title="了解 EXPLAIN"></a>了解 EXPLAIN</h3><p>当遇到慢SQL时，大多开发者选择的调优方式都是执行EXPLAIN命令来查看对应的查询计划。 </p>
 <h3 id="实践-EXPLAIN"><a href="#实践-EXPLAIN" class="headerlink" title="实践 EXPLAIN"></a>实践 EXPLAIN</h3><ul>
 <li><p>造数据</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 建表</span></span><br><span class="line"><span class="keyword">create</span> <span class="keyword">table</span> user_tests (<span class="keyword">id</span> <span class="built_in">int</span>, <span class="keyword">name</span> <span class="built_in">text</span>, <span class="keyword">status</span> <span class="built_in">int</span>, user_type <span class="built_in">int</span>, active <span class="built_in">boolean</span>, user_id <span class="built_in">int</span>, app_id <span class="built_in">int</span>, created_at <span class="built_in">timestamp</span>, save_at <span class="built_in">timestamp</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment"># 按批次造1000万数据</span></span><br><span class="line"><span class="keyword">insert</span> <span class="keyword">into</span> user_tests <span class="keyword">select</span> generate_series(<span class="number">9000001</span>,<span class="number">10000000</span>), <span class="keyword">md5</span>(random()::<span class="built_in">text</span>), <span class="keyword">floor</span>(random()*<span class="number">9</span>)::<span class="built_in">int</span>,<span class="keyword">floor</span>(random()*<span class="number">9</span>)::<span class="built_in">int</span>, <span class="keyword">floor</span>(random()*<span class="number">2</span>)::<span class="built_in">int</span> = <span class="number">0</span>,generate_series(<span class="number">1</span>,<span class="number">1000000</span>) + <span class="number">1000</span>, generate_series(<span class="number">1000000</span>, <span class="number">1</span>, <span class="number">-1</span>), clock_timestamp(),clock_timestamp();</span><br></pre></td></tr></table></figure>
