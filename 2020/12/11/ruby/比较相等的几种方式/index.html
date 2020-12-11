@@ -22,7 +22,7 @@
 
     <!-- Title -->
     
-    <title>Ruby &lt; ==, eql?, equal? &gt; 区别 | Hexo</title>
+    <title>Ruby &lt; 等号, eql?, equal? &gt; 区别 | Hexo</title>
 
     <!-- Bootstrap Core CSS -->
     <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
@@ -66,7 +66,7 @@
                     <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
                         <div class="post-heading">
                             <h1>
-                                Ruby < ==, eql?, equal? > 区别
+                                Ruby < 等号, eql?, equal? > 区别
                             </h1>
                         </div>
                     </div>
@@ -96,7 +96,7 @@
 <figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">minutes = <span class="number">15</span></span><br><span class="line"><span class="keyword">case</span> minutes</span><br><span class="line">  <span class="keyword">when</span> <span class="number">10</span>..<span class="number">20</span></span><br><span class="line">    puts <span class="string">&quot;yes&quot;</span></span><br><span class="line">  <span class="keyword">else</span></span><br><span class="line">    puts <span class="string">&quot;no&quot;</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 可以理解为</span></span><br><span class="line"><span class="keyword">if</span> (<span class="number">10</span>..<span class="number">20</span>) === minutes</span><br><span class="line">  puts <span class="string">&quot;yes&quot;</span></span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">  puts <span class="string">&quot;no&quot;</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
 
 <h3 id="eql"><a href="#eql" class="headerlink" title="eql?"></a>eql?</h3><p>根据计算hash值进行比较，例如字符型是根据字符串长度、内容、编码三个属性生成hash值</p>
-<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># == 执行类型转换，而 eql? 不执行</span></span><br><span class="line"><span class="number">1</span> == <span class="number">1.0</span> ＃=&gt; 是</span><br><span class="line"><span class="number">1</span>.eql? ]<span class="number">1.0</span> ＃=&gt; 否</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># == 执行类型转换，而 eql? 不执行</span></span><br><span class="line"><span class="number">1</span> == <span class="number">1.0</span> ＃=&gt; 是</span><br><span class="line"><span class="number">1</span>.eql? <span class="number">1.0</span> ＃=&gt; 否</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 
 <h3 id="equal"><a href="#equal" class="headerlink" title="equal?"></a>equal?</h3><p>内存地址相同的对象,通过比较object_id来判断在内存中是否相同，这是Ruby中最严格的相等形式。</p>
 
