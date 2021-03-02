@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Description-->
+    
+        <meta name="description" content="12345678910111213141516# ActiveRecord 系列的学习笔记将按以下目录顺序发布.└── 1. 基础├── 2. 迁移    └── 迁移概述    └── 创建迁移    └── 编写迁移    └── 运行迁移    └── 修改现有的迁移    └── 数据库模式">
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="Leo">
+    
+
+    <!-- Title -->
+    
+    <title>ActiveRecord 学习笔记 (迁移篇) | Leo&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Noto+Serif:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+    <!-- jQuery -->
+    <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="//cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+
+    <!-- Content -->
+    <section class="article-container">
+    <!-- Back Home -->
+    <a class="nav-back" href="/">
+    <i class="fa fa-puzzle-piece"></i>
+</a>
+
+        <!-- Page Header -->
+        <header class="intro-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <div class="post-heading">
+                            <h1>
+                                ActiveRecord 学习笔记 (迁移篇)
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Post Content -->
+        <article>
+            <div class="container">
+                <div class="row">
+                    <!-- Post Main Content -->
+                    <div class="post-content col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ActiveRecord 系列的学习笔记将按以下目录顺序发布</span></span><br><span class="line">.</span><br><span class="line">└── 1. 基础</span><br><span class="line">├── 2. 迁移</span><br><span class="line">    └── 迁移概述</span><br><span class="line">    └── 创建迁移</span><br><span class="line">    └── 编写迁移</span><br><span class="line">    └── 运行迁移</span><br><span class="line">    └── 修改现有的迁移</span><br><span class="line">    └── 数据库模式转储</span><br><span class="line">    └── ActiveRecord 和引用完整性</span><br><span class="line">    └── 迁移和种子数据</span><br><span class="line">└── 3. 数据验证</span><br><span class="line">└── 4. 回调</span><br><span class="line">└── 5. 关联</span><br><span class="line">└── 6. 查询接口</span><br></pre></td></tr></table></figure>
+
+<h3 id="迁移概述"><a href="#迁移概述" class="headerlink" title="迁移概述"></a>迁移概述</h3><ul>
+<li>简单的说，即数据库版本</li>
+<li>使用 Ruby <a target="_blank" rel="noopener" href="https://ruby-china.org/topics/38428">DSL</a> ，不必通过编写 SQL 来实现对数据库模式的创建和修改</li>
+<li>更新 db/schema.rb 文件，以匹配最新的数据库结构</li>
+</ul>
+<p>下面是迁移的事例：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CreateXXX</span> &lt; ActiveRecord::Migration[5.1]</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">change</span></span></span><br><span class="line">    create_table <span class="symbol">:table_names</span> <span class="keyword">do</span> <span class="params">|t|</span></span><br><span class="line">      t.integer <span class="symbol">:pattern_id</span>, <span class="symbol">index:</span> <span class="literal">true</span></span><br><span class="line">      t.json <span class="symbol">:process_users</span>,<span class="symbol">default:</span>&#123;&#125;</span><br><span class="line">      t.integer <span class="symbol">:current_action_user</span></span><br><span class="line">      t.json <span class="symbol">:process</span>,<span class="symbol">array:</span> <span class="literal">true</span>,<span class="symbol">default:</span> []</span><br><span class="line">      ...</span><br><span class="line">      t.timestamps</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>该迁移除了以上4个字段，还隐式添加了id字段。timestamps宏添加了created_at 和 updated_at 两个字段。</p>
+<p>迁移即数据库版本，在没执行前还不存在这张表；另外，若想回滚则数据表会被删除。</p>
+<p>对于不支持事务的数据库，执行迁移时成功的那部分操作将无法回滚，这种情况下需要手动完成相应的操作。</p>
+<blockquote>
+<p>某些查询不能在事务内部运行。如果数据库适配器支持 DDL 事务，就可以使用 disable_ddl_transaction! 方法在某个迁移中临时禁用事务。</p>
+</blockquote>
+<hr>
+<h3 id="创建迁移"><a href="#创建迁移" class="headerlink" title="创建迁移"></a>创建迁移</h3><p>创建包含指定字段的数据表迁移</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ rails generate migration CreateProducts name:string part_number:string</span><br></pre></td></tr></table></figure>
+
+<p>如果迁移名称是 AddXXXToYYY 或 RemoveXXXFromYYY 的形式，并且后面跟着字段名和类型列表，那么会生成包含合适的 add_column 或 remove_column 语句的迁移</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ rails generate migration AddPartNumberToProducts part_number:string</span><br><span class="line">$ rails generate migration RemovePartNumberFromProducts part_number:string</span><br></pre></td></tr></table></figure>
+
+<p>在新建字段上添加索引：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ rails generate migration AddPartNumberToProducts part_number:string:index</span><br></pre></td></tr></table></figure>
+
+<p>生成器也接受 references 字段类型作为参数（还可使用 belongs_to），这个迁移会创建 user_id 字段并添加索引。关于 add_reference 选项的更多介绍，请参阅 <a target="_blank" rel="noopener" href="https://api.rubyonrails.org/v5.1.1/classes/ActiveRecord/ConnectionAdapters/SchemaStatements.html#method-i-add_reference">API 文档</a>。例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ rails generate migration AddUserRefToProducts user:references</span><br></pre></td></tr></table></figure>
+
+<p>上面的命令会生成：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">AddUserRefToProducts</span> &lt; ActiveRecord::Migration[5.0]</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">change</span></span></span><br><span class="line">    add_reference <span class="symbol">:products</span>, <span class="symbol">:user</span>, <span class="symbol">foreign_key:</span> <span class="literal">true</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>模型生成器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ bin&#x2F;rails generate model Product name:string description:text</span><br></pre></td></tr></table></figure>
+
+<p><a target="_blank" rel="noopener" href="https://ruby-china.github.io/rails-guides/active_record_migrations.html#column-modifiers">传递修饰符</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">$ bin&#x2F;rails generate migration AddDetailsToProducts &#39;price:decimal&#123;5,2&#125;&#39; supplier:references&#123;polymorphic&#125;</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h3 id="编写迁移"><a href="#编写迁移" class="headerlink" title="编写迁移"></a>编写迁移</h3><figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">create_table <span class="symbol">:products</span> <span class="keyword">do</span> <span class="params">|t|</span></span><br><span class="line">  t.string <span class="symbol">:name</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+<p>默认情况下，create_table 方法会创建 id 主键。可以用 :primary_key 选项来修改主键名称，还可以传入 id: false 选项以禁用主键。如果需要传递数据库特有的选项，可以在 :options 选项中使用 SQL 代码片段。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">create_table <span class="symbol">:products</span>, <span class="symbol">options:</span> <span class="string">&quot;ENGINE=BLACKHOLE&quot;</span> <span class="keyword">do</span> <span class="params">|t|</span></span><br><span class="line">  t.string <span class="symbol">:name</span>, <span class="symbol">null:</span> <span class="literal">false</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>创建联结表</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">create_join_table <span class="symbol">:products</span>, <span class="symbol">:categories</span></span><br><span class="line"><span class="comment"># 上面的代码会创建包含 category_id 和 product_id 字段的 categories_products 数据表。这两个字段的 :null 选项默认设置为 false，可以通过 :column_options 选项覆盖这一设置：</span></span><br><span class="line">create_join_table <span class="symbol">:products</span>, <span class="symbol">:categories</span>, <span class="symbol">column_options:</span> &#123; <span class="symbol">null:</span> <span class="literal">true</span> &#125;</span><br><span class="line"><span class="comment"># 联结数据表的名称默认由 create_join_table 方法的前两个参数按字母顺序组合而来。可以传入 :table_name 选项来自定义联结数据表的名称</span></span><br><span class="line">create_join_table <span class="symbol">:products</span>, <span class="symbol">:categories</span>, <span class="symbol">table_name:</span> <span class="symbol">:categorization</span></span><br><span class="line"><span class="comment"># create_join_table 方法也接受块作为参数，用于添加索引（默认未创建的索引）或附加字段：</span></span><br><span class="line">create_join_table <span class="symbol">:products</span>, <span class="symbol">:categories</span> <span class="keyword">do</span> <span class="params">|t|</span></span><br><span class="line">  t.index <span class="symbol">:product_id</span></span><br><span class="line">  t.index <span class="symbol">:category_id</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>使用 excute 方法执行任意 SQL 语句：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Product.connection.execute(&quot;UPDATE products SET price &#x3D; &#39;free&#39; WHERE 1&#x3D;1&quot;)</span><br></pre></td></tr></table></figure>
+
+<p>Active Record 提供了 revert 方法用于回滚迁移：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">require_relative <span class="string">&#x27;20121212123456_example_migration&#x27;</span></span><br><span class="line"> </span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FixupExampleMigration</span> &lt; ActiveRecord::Migration[5.0]</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">change</span></span></span><br><span class="line">    revert ExampleMigration</span><br><span class="line"> </span><br><span class="line">    create_table(<span class="symbol">:apples</span>) <span class="keyword">do</span> <span class="params">|t|</span></span><br><span class="line">      t.string <span class="symbol">:variety</span></span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="运行迁移"><a href="#运行迁移" class="headerlink" title="运行迁移"></a>运行迁移</h3><p>Rails 提供了一套用于运行迁移的 bin/rails 任务。其中最常用的是 rails db:migrate 任务</p>
+<p>请注意，执行 db:migrate 任务时会自动执行 db:schema:dump 任务，这个任务用于更新 db/schema.rb 文件，以匹配数据库结构。</p>
+<p>如果指定了目标版本，Active Record 会运行该版本之前的所有迁移（调用其中的 change、up 和 down 方法），其中版本指的是迁移文件名的数字前缀。例如，下面的命令会运行 20080906120000 版本之前的所有迁移</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ bin&#x2F;rails db:migrate VERSION&#x3D;20080906120000</span><br></pre></td></tr></table></figure>
+
+<p>安装数据库</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rails db:setup 任务用于创建数据库，加载数据库模式，并使用种子数据初始化数据库。</span><br></pre></td></tr></table></figure>
+
+<p>重置数据库</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rails db:reset 任务用于删除并重新创建数据库，其功能相当于 rails db:drop db:setup</span><br></pre></td></tr></table></figure>
+
+<p>运行指定或撤销指定迁移，可以使用 db:migrate:up 和 db:migrate:down 任务。只需指定版本，对应迁移就会调用它的 change 、up 或 down 方法，例如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ bin&#x2F;rails db:migrate:up VERSION&#x3D;20080906120000</span><br></pre></td></tr></table></figure>
+
+<p>在不同环境中运行迁移</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ bin&#x2F;rails db:migrate RAILS_ENV&#x3D;test</span><br></pre></td></tr></table></figure>
+
+<hr>
+<h3 id="修改现有的迁移"><a href="#修改现有的迁移" class="headerlink" title="修改现有的迁移"></a>修改现有的迁移</h3><p>如果已经运行过存在错误的迁移，那么直接修正迁移中的错误并重新运行这个迁移并不能解决问题：Rails 知道这个迁移已经运行过，因此执行 rails db:migrate 任务时不会执行任何操作。必须先回滚这个迁移（例如通过执行 bin/rails db:rollback 任务），再修正迁移中的错误，然后执行 rails db:migrate 任务来运行这个迁移的正确版本。</p>
+<p>如果已经运行过存在错误的迁移，那么直接修正迁移中的错误并重新运行这个迁移并不能解决问题：Rails 知道这个迁移已经运行过，因此执行 rails db:migrate 任务时不会执行任何操作。必须先回滚这个迁移（例如通过执行 bin/rails db:rollback 任务），再修正迁移中的错误，然后执行 rails db:migrate 任务来运行这个迁移的正确版本。</p>
+<hr>
+<h3 id="数据库模式转储"><a href="#数据库模式转储" class="headerlink" title="数据库模式转储"></a>数据库模式转储</h3><p>数据库模式文件有什么用？</p>
+<p>迁移尽管很强大，但并非数据库模式的可信来源。ActiveRecord 通过检查数据库生成的 db/schema.rb 文件或 SQL 文件才是数据库模式的可信来源。这两个可信来源不应该被修改，它们仅用于表示数据库的当前状态。<br>当需要部署 Rails 应用的新实例时，不必把所有迁移重新运行一遍，直接加载当前数据库的模式文件要简单和快速得多。例如，我们可以这样创建测试数据库：把当前的开发数据库转储为 db/schema.rb 或 db/structure.sql 文件，然后加载到测试数据库。</p>
+<p>数据库模式转储的类型</p>
+<p>数据库模式转储有两种方式，可以通过 config/application.rb 文件的 config.active_record.schema_format 选项来设置想要采用的方式，即 :sql 或 :ruby。<br>ActiveRecord 在模型而不是数据库中声明关联。因此，像触发器、约束这些依赖数据库的特性没有被大量使用。验证，如 validates :foreign_key, uniqueness: true，是模型强制数据完整性的一种方式。在关联中设置 :dependent 选项，可以保证父对象删除后，子对象也会被删除。和其他应用层的操作一样，这些操作无法保证引用完整性，因此有些人会在数据库中使用外键约束以加强数据完整性。尽管 ActiveRecord 并未提供用于直接处理这些特性的工具，但 execute 方法可以用于执行任意 SQL。<br>在把数据库模式转储到 db/structure.sql 文件时，我们不使用数据库模式转储工具，而是使用数据库特有的工具（通过执行 db:structure:dump 任务）。例如，对于 PostgreSQL，使用的是 pg_dump 实用程序。对于 MySQL 和 MariaDB，db/structure.sql 文件将包含各种数据表的 SHOW CREATE TABLE 语句的输出。<br>加载数据库模式实际上就是执行其中包含的 SQL 语句。根据定义，加载数据库模式会创建数据库结构的完美拷贝。:sql 格式的数据库模式，只能加载到和原有数据库类型相同的数据库，而不能加载到其他类型的数据库。</p>
+<hr>
+<h3 id="ActiveRecord-和引用完整性"><a href="#ActiveRecord-和引用完整性" class="headerlink" title="ActiveRecord 和引用完整性"></a>ActiveRecord 和引用完整性</h3><p>ActiveRecord 在模型而不是数据库中声明关联。因此，像触发器、约束这些依赖数据库的特性没有被大量使用。<br>验证，如 validates :foreign_key, uniqueness: true，是模型强制数据完整性的一种方式。在关联中设置 :dependent 选项，可以保证父对象删除后，子对象也会被删除。和其他应用层的操作一样，这些操作无法保证引用完整性，因此有些人会在数据库中使用外键约束以加强数据完整性。<br>尽管 ActiveRecord 并未提供用于直接处理这些特性的工具，但 execute 方法可以用于执行任意 SQL。</p>
+<hr>
+<h3 id="迁移和种子数据"><a href="#迁移和种子数据" class="headerlink" title="迁移和种子数据"></a>迁移和种子数据</h3><p>Rails 迁移特性的主要用途是使用一致的进程调用修改数据库模式的命令。迁移还可以用于添加或修改数据。对于不能删除和重建的数据库，如生产数据库，这些功能非常有用。<br>使用 Rails 内置的“种子”特性可以快速简便地完成创建数据库后添加初始数据的任务。在开发和测试环境中，经常需要重新加载数据库，这时“种子”特性就更有用了。使用“种子”特性很容易，只要用 Ruby 代码填充 db/seeds.rb 文件，然后执行 rails db:seed 命令即可</p>
+
+
+                            <!-- Meta -->
+                            <div class="post-meta">
+                                <hr>
+                                <br>
+                                <div class="post-tags">
+                                    
+                                                
+
+<a href="/categories/Rails/"><Rails></a>
+
+                                                    
+                                </div>
+                                <div class="post-date">
+                                    2021-02-27
+                                </div>
+                            </div>
+                    </div>
+
+                    <!-- Comments -->
+                    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <!-- Disqus Comments -->
+
+
+                    </div>
+                </div>
+            </div>
+        </article>
+</section>
+
+<!-- Image viewer-->
+
+    <!-- Custom picture view-->
+    <link href="/css/viewer.min.css" rel="stylesheet" />
+    <script
+      src="/js/viewer.min.js"
+      type="text/javascript"
+      charset="utf-8"
+    ></script>
+    
+    <script type="text/javascript">
+      // set image viewer
+      Viewer.setDefaults({
+        zoomRatio: [0.5],
+        navbar: false,
+        toolbar: false,
+        button: false,
+        title: [2, (image, imageData) => `${image.alt}`],
+        show: function() {
+          this.viewer.zoomTo(0.5);
+        }
+      });
+      var imageList = document.getElementsByTagName("img");
+      Array.prototype.forEach.call(imageList, element => {
+        var viewer = new Viewer(element);
+      });
+    </script>
+
+    
+    <!-- Scripts -->
+    <script type="text/javascript">
+    console.log("© zchen9 🙋 2015-" + new Date().getFullYear());
+</script>
+  
+    <!-- Google Analytics -->
+    
+
+    <!-- Service Worker -->
+    <!-- if using service worker -->
+
+    
+</body>
+
+</html>

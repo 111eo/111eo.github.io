@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+
+<!-- Head tag -->
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--Description-->
+    
+        <meta name="description" content="123456789101112131415# ActiveRecord 系列的学习笔记将按以下目录顺序发布.├── 1. 基础    └── ActiveRecord 是什么？    └── ActiveRecord &amp;quot;多约定少配置&amp;quot; 原则    └── ActiveRecord">
+    
+
+    <!--Author-->
+    
+        <meta name="author" content="Leo">
+    
+
+    <!-- Title -->
+    
+    <title>ActiveRecord 学习笔记 (基础篇) | Leo&#39;s Blog</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="//cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+
+    <!-- Custom Fonts -->
+    <link href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Noto+Serif:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+
+    <!-- jQuery -->
+    <script src="//cdn.bootcss.com/jquery/2.2.1/jquery.min.js"></script>
+    <!-- Bootstrap -->
+    <script src="//cdn.bootcss.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+<meta name="generator" content="Hexo 5.2.0"></head>
+
+<body>
+
+    <!-- Content -->
+    <section class="article-container">
+    <!-- Back Home -->
+    <a class="nav-back" href="/">
+    <i class="fa fa-puzzle-piece"></i>
+</a>
+
+        <!-- Page Header -->
+        <header class="intro-header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <div class="post-heading">
+                            <h1>
+                                ActiveRecord 学习笔记 (基础篇)
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Post Content -->
+        <article>
+            <div class="container">
+                <div class="row">
+                    <!-- Post Main Content -->
+                    <div class="post-content col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ActiveRecord 系列的学习笔记将按以下目录顺序发布</span></span><br><span class="line">.</span><br><span class="line">├── 1. 基础</span><br><span class="line">    └── ActiveRecord 是什么？</span><br><span class="line">    └── ActiveRecord <span class="string">&quot;多约定少配置&quot;</span> 原则</span><br><span class="line">    └── ActiveRecord 覆盖命名约定</span><br><span class="line">    └── CRUD：读写数据</span><br><span class="line">    └── 数据验证</span><br><span class="line">    └── 回调</span><br><span class="line">    └── 迁移</span><br><span class="line">└── 2. 迁移</span><br><span class="line">└── 3. 数据验证</span><br><span class="line">└── 4. 回调</span><br><span class="line">└── 5. 关联</span><br><span class="line">└── 6. 查询接口</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="1-基础"><a href="#1-基础" class="headerlink" title="1. 基础"></a>1. 基础</h3><p>ActiveRecord 是什么？</p>
+<ul>
+<li>MVC中的M</li>
+<li>负责处理数据和业务逻辑</li>
+<li>一种对象关系映射系统(ORM)，将对象和关系型数据库中的表连接起来；无需编写sql，能简单从表中获取数据</li>
+</ul>
+<hr>
+<p>ActiveRecord “多约定少配置” 原则</p>
+<blockquote>
+<p>大多数情况下配置不需要太大变更，只有当约定不满足要求时，才需要额外配置</p>
+</blockquote>
+<p><b>「命名约定」</b></p>
+<p>单复数转换 (模型的类名转换成复数)</p>
+<p><b>「模式约定」</b></p>
+<ul>
+<li>主键</li>
+<li>外键</li>
+<li>created_at</li>
+<li>updated_at</li>
+<li>lock_version: 乐观锁</li>
+<li>(association_name)_type: 存储多态关联的类型</li>
+<li>(table_name)_count: 缓存所关联对象的数量</li>
+</ul>
+<hr>
+<p>ActiveRecord 覆盖命名约定</p>
+<p>ApplicationRecord 继承自 ActiveRecord::Base,后者定义了一系列有用的方法</p>
+<p>使用ActiveRecord::Base.table_name = 方法可以指定要使用的表名：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Product</span> &lt; ApplicationRecord</span></span><br><span class="line">  <span class="keyword">self</span>.table_name = <span class="string">&quot;my_products&quot;</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>还可以使用 ActiveRecord::Base.primary_key = 方法指定表的主键：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Product</span> &lt; ApplicationRecord</span></span><br><span class="line">  <span class="keyword">self</span>.primary_key = <span class="string">&quot;product_id&quot;</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>CRUD：读写数据</p>
+<p><a href="''">ActiveRecord 查询接口</a> 会详细介绍</p>
+<hr>
+<p>数据验证</p>
+<p>存入数据库之前，ActiveRecord 还可以验证模型，可以检查属性值是否不为空，是否是唯一的、没有在数据库中出现过，等等。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 验证失败会抛出 ActiveRecord::RecordInvalid 异常</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">User</span> &lt; ApplicationRecord</span></span><br><span class="line">  validates <span class="symbol">:name</span>, <span class="symbol">presence:</span> <span class="literal">true</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p><a href="''">ActiveRecord 数据验证</a> 会详细介绍</p>
+<hr>
+<p>回调</p>
+<p>用于模型的生命周期的特定事件上绑定代码，例如创建、更新及删除时</p>
+<p><a href="''">ActiveRecord 回调</a> 会详细介绍</p>
+<hr>
+<p>迁移</p>
+<p>Rails 提供了一个 DSL 来处理数据库模式即迁移，例如：</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CreatePublications</span> &lt; ActiveRecord::Migration[5.0]</span></span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">change</span></span></span><br><span class="line">    create_table <span class="symbol">:publications</span> <span class="keyword">do</span> <span class="params">|t|</span></span><br><span class="line">      t.string <span class="symbol">:title</span></span><br><span class="line">      t.text <span class="symbol">:description</span></span><br><span class="line">      t.references <span class="symbol">:publication_type</span></span><br><span class="line">      t.integer <span class="symbol">:publisher_id</span></span><br><span class="line">      t.string <span class="symbol">:publisher_type</span></span><br><span class="line">      t.boolean <span class="symbol">:single_issue</span></span><br><span class="line"> </span><br><span class="line">      t.timestamps</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line">    add_index <span class="symbol">:publications</span>, <span class="symbol">:publication_type_id</span></span><br><span class="line">  <span class="keyword">end</span></span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
+
+<p>创建表时，可执行 <b>rails db:migrate</b> 命令;回滚时，则执行 <b>rails db:rollback</b> 命令</p>
+<p><a href="''">ActiveRecord 迁移</a> 会详细介绍</p>
+
+
+                            <!-- Meta -->
+                            <div class="post-meta">
+                                <hr>
+                                <br>
+                                <div class="post-tags">
+                                    
+                                                
+
+<a href="/categories/Rails/"><Rails></a>
+
+                                                    
+                                </div>
+                                <div class="post-date">
+                                    2021-02-22
+                                </div>
+                            </div>
+                    </div>
+
+                    <!-- Comments -->
+                    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                        <!-- Disqus Comments -->
+
+
+                    </div>
+                </div>
+            </div>
+        </article>
+</section>
+
+<!-- Image viewer-->
+
+    <!-- Custom picture view-->
+    <link href="/css/viewer.min.css" rel="stylesheet" />
+    <script
+      src="/js/viewer.min.js"
+      type="text/javascript"
+      charset="utf-8"
+    ></script>
+    
+    <script type="text/javascript">
+      // set image viewer
+      Viewer.setDefaults({
+        zoomRatio: [0.5],
+        navbar: false,
+        toolbar: false,
+        button: false,
+        title: [2, (image, imageData) => `${image.alt}`],
+        show: function() {
+          this.viewer.zoomTo(0.5);
+        }
+      });
+      var imageList = document.getElementsByTagName("img");
+      Array.prototype.forEach.call(imageList, element => {
+        var viewer = new Viewer(element);
+      });
+    </script>
+
+    
+    <!-- Scripts -->
+    <script type="text/javascript">
+    console.log("© zchen9 🙋 2015-" + new Date().getFullYear());
+</script>
+  
+    <!-- Google Analytics -->
+    
+
+    <!-- Service Worker -->
+    <!-- if using service worker -->
+
+    
+</body>
+
+</html>
